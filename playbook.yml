@@ -15,7 +15,7 @@
 
 - name: Localhost Setup Tasks
   hosts: localhost
-  gather_facts: no
+  gather_facts: yes
   tasks:
     - name: Create a test directory
       ansible.builtin.file:
