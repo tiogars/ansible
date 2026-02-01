@@ -1,0 +1,116 @@
+---
+# Sample Ansible Playbook
+# This playbook demonstrates basic Ansible functionality with various common tasks
+
+- name: Test Connectivity and Gather Facts
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Ping all hosts
+      ansible.builtin.ping:
+
+    - name: Display gathered facts
+      ansible.builtin.debug:
+        msg: "Host {{ ansible_hostname }} is running {{ ansible_distribution }} {{ ansible_distribution_version }}"
+
+- name: Localhost Setup Tasks
+  hosts: localhost
+  gather_facts: yes
+  tasks:
+    - name: Create a test directory
+      ansible.builtin.file:
+        path: /tmp/ansible-test
+        state: directory
+        mode: '0755'
+
+    - name: Create a test file with content
+      ansible.builtin.copy:
+        content: |
+          This is a test file created by Ansible.
+          Timestamp: {{ ansible_date_time.iso8601 | default('N/A') }}
+        dest: /tmp/ansible-test/test.txt
+        mode: '0644'
+
+    - name: Display success message
+      ansible.builtin.debug:
+        msg: "Successfully created test directory and file!"
+
+- name: Web Servers Configuration
+  hosts: webservers
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Ensure web server package is installed (Ubuntu/Debian)
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+      ignore_errors: yes
+
+    - name: Ensure web server package is installed (CentOS/RHEL)
+      ansible.builtin.yum:
+        name: nginx
+        state: present
+      when: ansible_os_family == "RedHat"
+      ignore_errors: yes
+
+    - name: Ensure web service is running
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: yes
+      ignore_errors: yes
+
+- name: Database Servers Configuration
+  hosts: databases
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Create database directory
+      ansible.builtin.file:
+        path: /var/lib/database
+        state: directory
+        mode: '0755'
+      ignore_errors: yes
+
+    - name: Display database configuration info
+      ansible.builtin.debug:
+        msg: "Database port configured as {{ db_port }}"
+
+- name: Application Servers Configuration
+  hosts: appservers
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Ensure application directory exists
+      ansible.builtin.file:
+        path: /opt/app
+        state: directory
+        mode: '0755'
+      ignore_errors: yes
+
+    - name: Display application configuration info
+      ansible.builtin.debug:
+        msg: "Application port configured as {{ app_port }}"
+
+- name: Final Summary
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Display completion message
+      ansible.builtin.debug:
+        msg: |
+          ====================================
+          Ansible Playbook Execution Complete!
+          ====================================
+          
+          This playbook demonstrated:
+          - Connectivity testing with ping
+          - Gathering and displaying facts
+          - Creating directories and files
+          - Package management (conditional)
+          - Service management
+          - Working with group variables
+          
+          Check /tmp/ansible-test/ for created files.

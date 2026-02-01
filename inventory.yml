@@ -1,0 +1,59 @@
+---
+# Ansible Inventory File
+# This file defines the hosts and groups that Ansible will manage
+
+all:
+  hosts:
+    # Localhost - useful for testing without remote hosts
+    localhost:
+      ansible_connection: local
+      ansible_python_interpreter: /usr/bin/python3
+
+  children:
+    # Web Servers Group
+    webservers:
+      hosts:
+        web1:
+          ansible_host: 192.168.1.10
+          ansible_user: admin
+          ansible_port: 22
+        web2:
+          ansible_host: 192.168.1.11
+          ansible_user: admin
+          ansible_port: 22
+      vars:
+        # Group variables for all webservers
+        http_port: 80
+        https_port: 443
+
+    # Database Servers Group
+    databases:
+      hosts:
+        db1:
+          ansible_host: 192.168.1.20
+          ansible_user: dbadmin
+          ansible_port: 22
+        db2:
+          ansible_host: 192.168.1.21
+          ansible_user: dbadmin
+          ansible_port: 22
+      vars:
+        # Group variables for all databases
+        db_port: 5432
+
+    # Application Servers Group
+    appservers:
+      hosts:
+        app1:
+          ansible_host: 192.168.1.30
+          ansible_user: appuser
+          ansible_port: 22
+      vars:
+        app_port: 8080
+
+  vars:
+    # Global variables for all hosts
+    # WARNING: Disabling StrictHostKeyChecking is a SECURITY RISK in production!
+    # Only use this in controlled testing/development environments
+    # Remove or comment out the line below for production use
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
